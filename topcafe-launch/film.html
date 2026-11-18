@@ -137,13 +137,12 @@ const E = window.EV;
 const $ = id => document.getElementById(id);
 const SX = 746, SY = 90;                 // origine de l'écran du téléphone dans le monde
 const CARDS = [
-  {img:"espresso",   nm:"Espresso Intense",   ds:"Riche et corsé",                pr:"500 FCFA", rt:"4,6"},
-  {img:"cappuccino", nm:"Cappuccino",         ds:"Onctueux et mousseux",          pr:"750 FCFA", rt:"4,7"},
-  {img:"mocha",      nm:"Mocha",              ds:"Gourmand et généreux",          pr:"900 FCFA", rt:"4,6"},
-  {img:"latte",      nm:"TOPCAFÉ Café Latte", ds:"3 en 1 · Crémeux et délicieux", pr:"150 FCFA", rt:"4,9"},
-  {img:"cafe-au-lait",nm:"Café au lait",      ds:"Doux et équilibré",             pr:"600 FCFA", rt:"4,5"},
+  {img:"espresso",    nm:"Espresso Intense",   ds:"Riche et corsé",                pr:"500 FCFA", rt:"4,6"},
+  {img:"creme",       nm:"Café crème",         ds:"Doux et velouté",               pr:"600 FCFA", rt:"4,7"},
+  {img:"latte",       nm:"TOPCAFÉ Café Latte", ds:"3 en 1 · Crémeux et délicieux", pr:"150 FCFA", rt:"4,9"},
+  {img:"cafe-au-lait",nm:"Café au lait",       ds:"Doux et équilibré",             pr:"600 FCFA", rt:"4,5"},
 ];
-const PICK = 3;
+const PICK = 2;
 const REPLY = ["Trouvé ! Le TOPCAFÉ", "Café Latte 3 en 1 :", "crémeux, doux et", "délicieux, parfait pour", "bien démarrer la journée."];
 const LINE1 = "Vous rêviez d'un café crémeux.".split(" ");
 const LINE2 = "Il est déjà en route.".split(" ");
