@@ -1,0 +1,7 @@
+node_modules/
+out/frames/
+out/seg_*.mp4
+out/*.png
+out/*.wav
+out/segs.txt
+out/video_silent.mp4

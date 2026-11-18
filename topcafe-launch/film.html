@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<title>TOPCAFÉ — film de lancement</title>
+<style>
+@font-face{font-family:Geist;src:url(assets/fonts/Geist-Variable.woff2) format("woff2");font-weight:100 900}
+@font-face{font-family:Playfair;src:url(assets/fonts/playfair-display-latin-700-normal.woff2);font-weight:700}
+@font-face{font-family:Playfair;src:url(assets/fonts/playfair-display-latin-700-italic.woff2);font-weight:700;font-style:italic}
+:root{--canvas:#f5f5f2;--ink:#0e0e10;--lime:#cdf24f;--orange:#ff6a2a;--send:#2f6bff;--brand:#1d4fb8}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--canvas)}
+body{font-family:Geist,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.abs{position:absolute}
+#stage{position:absolute;inset:0;overflow:hidden;background:var(--canvas)}
+#world{position:absolute;left:0;top:0;transform-origin:0 0;z-index:1}
+/* téléphone */
+#phone{position:absolute;left:735px;top:79px;width:450px;height:922px;border-radius:64px;background:var(--ink);
+  box-shadow:0 40px 80px rgba(14,14,16,.18),0 8px 20px rgba(14,14,16,.12)}
+#screen{position:absolute;left:11px;top:11px;width:428px;height:900px;border-radius:53px;overflow:hidden;background:#fbfbf9}
+#island{left:154px;top:11px;width:120px;height:34px;border-radius:17px;background:var(--ink)}
+#clock{left:38px;top:16px;font-weight:600;font-size:16px;letter-spacing:-.2px}
+#header{left:0;width:428px;top:66px;text-align:center;font-weight:700;font-size:22px;color:var(--brand);letter-spacing:.5px}
+#header svg{vertical-align:-3px;margin-right:6px}
+#glow{border-radius:48px;background:conic-gradient(from 0deg,#ff5fa2,#ff6a2a,#cdf24f,#3fd8ff,#8b5cff,#ff5fa2);filter:blur(18px)}
+#msg{overflow:hidden;background:#fff;box-shadow:0 10px 30px rgba(14,14,16,.08)}
+#ripple{border-radius:50%;background:var(--lime)}
+.line{position:absolute;left:0;white-space:pre;font-weight:500;letter-spacing:-.1px}
+#caret{width:2px;background:var(--ink)}
+#btn{z-index:5}
+#btnShape{position:absolute;inset:0}
+#plane{position:absolute;left:50%;top:50%}
+#handle{height:8px;border-radius:4px;background:#c9471a;transform-origin:0 50%}
+.ing{position:absolute;left:0;top:0}
+#thinking{left:0;width:428px;text-align:center;font-size:19px;font-weight:500}
+.shimmer{background:linear-gradient(90deg,#8a8a90 0%,#8a8a90 35%,#0e0e10 50%,#8a8a90 65%,#8a8a90 100%);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent}
+.mask{overflow:hidden;display:inline-block;vertical-align:top}
+.mask>span{display:inline-block}
+/* réponse */
+#avatar{width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(14,14,16,.12);overflow:hidden;display:flex;align-items:center;justify-content:center}
+#reply{background:#fff;border-radius:22px;box-shadow:0 8px 26px rgba(14,14,16,.08);transform-origin:0 0}
+.rl{position:absolute;white-space:pre;font-size:14.5px;line-height:21px}
+.pill{position:absolute;border-radius:25px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16px;overflow:hidden}
+#order{background:var(--ink);color:#fff}
+#more{border:1.5px solid var(--ink);background:#fff}
+.lbl{position:absolute;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:8px}
+/* cartes */
+.card{position:absolute;left:0;top:0;width:330px;height:440px;border-radius:28px;background:var(--ink);overflow:hidden;transform-origin:50% 50%;box-shadow:0 24px 50px rgba(14,14,16,.28)}
+.card img{width:330px;height:250px;object-fit:cover;display:block}
+.card .nm{position:absolute;left:24px;top:268px;color:#fff;font-weight:600;font-size:23px;letter-spacing:-.3px}
+.card .ds{position:absolute;left:24px;top:302px;color:#a1a1aa;font-size:15.5px}
+.card .pr{position:absolute;left:24px;bottom:28px;color:#fff;font-weight:600;font-size:21px}
+.card .rt{position:absolute;right:24px;bottom:28px;color:#fff;font-weight:600;font-size:19px}
+.card .rt b{color:var(--orange)}
+#overlay{position:absolute;inset:0;z-index:10;pointer-events:none}
+#flood{position:absolute;background:var(--lime);overflow:hidden;z-index:10}
+#floodWords{z-index:12;white-space:pre;font-weight:500}
+#flyer{z-index:20}
+#best{z-index:21;background:var(--ink);color:var(--lime);border-radius:20px;font-weight:600;font-size:17px;padding:0 18px;height:40px;display:flex;align-items:center;gap:8px;transform-origin:50% 100%}
+#page{z-index:30;background:var(--ink);overflow:hidden}
+#pageLabel{z-index:31;color:#fff;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:.4em;transform-origin:0 0}
+.big{position:absolute;left:0;width:1920px;text-align:center;font-weight:600;font-size:92px;letter-spacing:-2.5px;color:#fff;white-space:nowrap;z-index:32}
+#routeSvg{z-index:32}
+#pin{z-index:33}
+#wm{z-index:32;overflow:hidden}
+#cursor{z-index:40}
+</style></head><body>
+<div id="stage">
+  <div id="world">
+    <div id="phone">
+      <div id="screen">
+        <div class="abs" id="island"></div>
+        <div class="abs" id="clock">9:41</div>
+        <svg class="abs" style="left:322px;top:19px" width="80" height="14" viewBox="0 0 80 14">
+          <rect x="0" y="9" width="3.5" height="5" rx="1" fill="#0e0e10"/><rect x="5.5" y="6.5" width="3.5" height="7.5" rx="1" fill="#0e0e10"/><rect x="11" y="4" width="3.5" height="10" rx="1" fill="#0e0e10"/><rect x="16.5" y="1" width="3.5" height="13" rx="1" fill="#0e0e10"/>
+          <path d="M28 5.2a10 10 0 0 1 13.4 0l-1.6 1.7a7.6 7.6 0 0 0-10.2 0zM31.1 8.4a5.6 5.6 0 0 1 7.2 0l-1.7 1.7a3.2 3.2 0 0 0-3.8 0zM34.7 12.2l1.1 1.1 1.1-1.1a1.6 1.6 0 0 0-2.2 0z" fill="#0e0e10"/>
+          <rect x="50" y="1" width="25" height="12" rx="3.5" fill="none" stroke="#0e0e10" stroke-opacity=".4"/><rect x="52" y="3" width="20" height="8" rx="2" fill="#0e0e10"/><rect x="76.5" y="5" width="1.8" height="4" rx=".9" fill="#0e0e10" fill-opacity=".4"/>
+        </svg>
+        <div class="abs" id="header"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 1.5c.8 5.6 4.9 9.7 10.5 10.5-5.6.8-9.7 4.9-10.5 10.5C11.2 16.9 7.1 12.8 1.5 12 7.1 11.2 11.2 7.1 12 1.5z" fill="#ff6a2a"/></svg>TOPCAFÉ</div>
+
+        <div class="abs" id="glow"></div>
+        <div class="abs" id="msg">
+          <div class="abs" id="ripple"></div>
+          <div class="abs" id="msgText"><div class="line" id="l0"></div><div class="line" id="l1"></div><div class="line" id="l2"></div><div class="abs" id="caret"></div></div>
+        </div>
+
+        <!-- ingrédients (derrière le wok) -->
+        <div class="abs" id="ings"></div>
+        <div class="abs" id="btn">
+          <div class="abs" id="handle"></div>
+          <div id="btnShape"></div>
+          <svg id="plane" width="22" height="22" viewBox="0 0 24 24"><path d="M3 11.5 20.5 3.5 13 21l-2.2-7.6z" fill="#fff"/><path d="M10.8 13.4 20.5 3.5" stroke="#2f6bff" stroke-width="1.6"/></svg>
+        </div>
+        <div class="abs" id="thinking"><span class="mask"><span class="shimmer" id="thinkTxt">Je cherche le café idéal pour vous…</span></span></div>
+
+        <div class="abs" id="avatar"><img src="assets/logo.png" style="width:34px"></div>
+        <div class="abs" id="reply">
+          <div class="abs" id="slot"></div>
+          <div id="replyLines"></div>
+          <div class="rl" id="ask2" style="font-weight:600;font-size:15.5px"><span class="mask"><span>Je vous le prépare ?</span></span></div>
+          <div class="pill" id="order">
+            <div class="lbl" id="lblOrder"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2.5l2.2 11h10.6L20.5 7H7"/><circle cx="9.5" cy="19.5" r="1.4" fill="#fff"/><circle cx="17" cy="19.5" r="1.4" fill="#fff"/></svg>Commander maintenant</div>
+            <div class="lbl" id="lblSpin"><svg id="spin" width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="3"/><path d="M12 3a9 9 0 0 1 9 9" fill="none" stroke="#cdf24f" stroke-width="3" stroke-linecap="round"/></svg></div>
+            <div class="lbl" id="lblDone"><span style="color:#cdf24f">✓</span>Commandé</div>
+          </div>
+          <div class="pill" id="more">Plus d'options</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="overlay">
+    <div id="flood"><div class="abs" id="cards"></div></div>
+    <div class="abs" id="floodWords"></div>
+    <div class="abs" id="flyer"></div>
+    <div class="abs" id="best"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 1.5c.8 5.6 4.9 9.7 10.5 10.5-5.6.8-9.7 4.9-10.5 10.5C11.2 16.9 7.1 12.8 1.5 12 7.1 11.2 11.2 7.1 12 1.5z" fill="#cdf24f"/></svg>Meilleur choix</div>
+    <div class="abs" id="page"></div>
+    <div class="abs" id="pageLabel"><span style="color:#cdf24f">✓</span><span>Commandé</span></div>
+    <div class="big" id="big1"></div>
+    <div class="big" id="big2"></div>
+    <svg class="abs" id="routeSvg" width="1920" height="1080" style="left:0;top:0">
+      <path id="route" d="M70 1010 C 260 980, 220 760, 380 760 S 470 600, 560 560" fill="none" stroke="#cdf24f" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 14"/>
+      <circle id="courier" r="13" fill="#ff6a2a" stroke="#fff" stroke-width="4"/>
+    </svg>
+    <div class="abs" id="pin"><div id="pinShape" class="abs"></div><svg id="markCup" class="abs" viewBox="0 0 64 40"><path d="M8 8h40v6a20 20 0 0 1-40 0z" fill="#fff"/><path d="M48 11h4a6 6 0 0 1 0 12h-6" fill="none" stroke="#fff" stroke-width="4"/><path d="M2 36h56" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg></div>
+    <div class="abs" id="wm"><img id="wmImg" src="assets/logo.png" class="abs"></div>
+    <div class="abs" id="endAbove" style="z-index:32;color:#a1a1aa;font-size:24px;font-weight:500;white-space:nowrap"><span class="mask"><span>Votre pause café, signée</span></span></div>
+    <div class="abs" id="endName" style="z-index:32;color:#fff;font-family:Playfair;font-weight:700;font-size:66px;white-space:nowrap;line-height:1.1"><span class="mask"><span>Café Latte 3 en 1</span></span></div>
+    <div class="abs" id="endTag" style="z-index:32;color:#cdf24f;font-size:26px;font-weight:600;white-space:nowrap"><span class="mask"><span>Crémeux et délicieux.</span></span></div>
+    <img class="abs" id="endSachet" src="assets/sachet.png" style="z-index:32">
+    <svg class="abs" id="cursor" width="34" height="40" viewBox="0 0 24 28"><path d="M2 2v20l5.5-5 3.6 8.2 3.4-1.5-3.6-8H18z" fill="#0e0e10" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+  </div>
+</div>
+
+<script src="timeline.js"></script>
+<script>
+// ===================================================================== données
+const E = window.EV;
+const $ = id => document.getElementById(id);
+const SX = 746, SY = 90;                 // origine de l'écran du téléphone dans le monde
+const CARDS = [
+  {img:"espresso",   nm:"Espresso Intense",   ds:"Riche et corsé",                pr:"500 FCFA", rt:"4,6"},
+  {img:"cappuccino", nm:"Cappuccino",         ds:"Onctueux et mousseux",          pr:"750 FCFA", rt:"4,7"},
+  {img:"mocha",      nm:"Mocha",              ds:"Gourmand et généreux",          pr:"900 FCFA", rt:"4,6"},
+  {img:"latte",      nm:"TOPCAFÉ Café Latte", ds:"3 en 1 · Crémeux et délicieux", pr:"150 FCFA", rt:"4,9"},
+  {img:"cafe-au-lait",nm:"Café au lait",      ds:"Doux et équilibré",             pr:"600 FCFA", rt:"4,5"},
+];
+const PICK = 3;
+const REPLY = ["Trouvé ! Le TOPCAFÉ", "Café Latte 3 en 1 :", "crémeux, doux et", "délicieux, parfait pour", "bien démarrer la journée."];
+const LINE1 = "Vous rêviez d'un café crémeux.".split(" ");
+const LINE2 = "Il est déjà en route.".split(" ");
+
+// géométrie (coordonnées écran du téléphone)
+const COMPOSER = {x:16, y:300, w:396, h:180, r:34, fs:17, lh:27, px:26, py:30};
+const BUBBLE   = {x:96, y:112, w:316, h:104, r:24, fs:14.5, lh:23, px:18, py:15};
+const BTN0 = {x:362, y:438, d:50};
+const WOK  = {x:214, y:560, w:170, h:85};
+const SLOT = {x:80, y:252, w:84, h:112};
+const REPLYBOX = {x:64, y:236, w:348, h:314};
+const ORDER = {x:82, y:420, w:314, h:50};
+const MORE  = {x:82, y:482, w:314, h:46};
+const ENDMARK = {x:560, y:560, d:150};
+
+// ===================================================================== outils
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const ioC = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+const oC = k => 1 - Math.pow(1 - k, 3);
+const oQ = k => 1 - Math.pow(1 - k, 4);
+const iC = k => k * k * k;
+/** ressort amorti en forme fermée (réponse indicielle), 0 → 1 */
+function spring(t, f = 2.4, z = 0.55) {
+  if (t <= 0) return 0;
+  const w = 2 * Math.PI * f;
+  if (z >= 1) return 1 - Math.exp(-w * t) * (1 + w * t);
+  const wd = w * Math.sqrt(1 - z * z);
+  return 1 - Math.exp(-z * w * t) * (Math.cos(wd * t) + (z * w / wd) * Math.sin(wd * t));
+}
+/** impulsion amortie (pour secousses), 0 → pic → 0 */
+const kick = (t, f = 3, d = 7) => t <= 0 ? 0 : Math.exp(-d * t) * Math.sin(2 * Math.PI * f * t);
+const px = v => v + "px";
+function box(el, r) { el.style.left = px(r.x); el.style.top = px(r.y); el.style.width = px(r.w); el.style.height = px(r.h); }
+function rectLerp(a, b, k) { return {x: lerp(a.x, b.x, k), y: lerp(a.y, b.y, k), w: lerp(a.w, b.w, k), h: lerp(a.h, b.h, k), r: lerp(a.r ?? 0, b.r ?? 0, k)}; }
+const show = (el, on) => { el.style.display = on ? "" : "none"; };
+/** texte qui monte depuis une ligne de masque : p ∈ [0,1] entrée, q ∈ [0,1] sortie */
+function rise(el, p, q = 0) { el.style.transform = `translateY(${(1 - p) * 110 - q * 110}%)`; }
+
+// ===================================================================== caméra
+// [temps, zoom, cx, cy] — segments adoucis, zoom interpolé en espace log.
+const CAM = [
+  [0.00, 2.00, 952, 482],
+  [E.send - 0.08, 3.00, 948, 480],
+  [E.send + 0.05, 3.00, 948, 480],
+  [E.send + 0.95, 1.00, 960, 540],
+  [E.drop, 1.07, 960, 556],
+  [E.drop + 0.37, 1.07, 960, 556],
+  [E.drop + 0.371, 1.36, 960, 410],   // invisible : l'aplat citron couvre tout l'écran
+  [E.chat, 1.36, 960, 410],
+  [E.outro, 1.48, 960, 432],
+  [E.outro + 0.6, 5.0, 0, 0],          // cx/cy remplacés par le centre du bouton
+];
+function camera(t) {
+  let i = 0;
+  while (i < CAM.length - 2 && t > CAM[i + 1][0]) i++;
+  const a = CAM[i], b = CAM[i + 1];
+  const k = ioC(prog(t, a[0], b[0]));
+  let bx = b[2], by = b[3];
+  if (b[2] === 0) { bx = SX + ORDER.x + ORDER.w / 2; by = SY + ORDER.y + ORDER.h / 2; }
+  return {z: Math.exp(lerp(Math.log(a[1]), Math.log(b[1]), k)), cx: lerp(a[2], bx, k), cy: lerp(a[3], by, k)};
+}
+let CAMNOW = {z: 1, cx: 960, cy: 540};
+/** coordonnées écran-téléphone → pixels du film */
+function proj(sx, sy) { const c = CAMNOW; return {x: (SX + sx - c.cx) * c.z + 960, y: (SY + sy - c.cy) * c.z + 540}; }
+function projRect(r) { const p = proj(r.x, r.y); return {x: p.x, y: p.y, w: r.w * CAMNOW.z, h: r.h * CAMNOW.z, r: (r.r ?? 0) * CAMNOW.z}; }
+
+// ===================================================================== construction (une fois)
+const typed = E.request;
+const flat = typed.join("\n");
+function makeCard(c) {
+  const d = document.createElement("div"); d.className = "card";
+  d.innerHTML = `<img src="assets/${c.img}.jpg"><div class="nm">${c.nm}</div><div class="ds">${c.ds}</div><div class="pr">${c.pr}</div><div class="rt"><b>★</b> ${c.rt}</div>`;
+  return d;
+}
+const cardEls = CARDS.map(c => { const d = makeCard(c); $("cards").appendChild(d); return d; });
+const flyer = makeCard(CARDS[PICK]); $("flyer").appendChild(flyer);
+const slotCard = makeCard(CARDS[PICK]); $("slot").appendChild(slotCard);
+slotCard.style.transformOrigin = "0 0"; slotCard.style.transform = `scale(${SLOT.w / 330})`; slotCard.style.boxShadow = "none";
+flyer.style.transformOrigin = "0 0";
+box($("slot"), SLOT); $("slot").style.left = px(SLOT.x - REPLYBOX.x); $("slot").style.top = px(SLOT.y - REPLYBOX.y);
+$("slot").style.borderRadius = "9px"; $("slot").style.overflow = "hidden";
+REPLY.forEach((l, i) => {
+  const d = document.createElement("div"); d.className = "rl";
+  d.style.left = px(178 - REPLYBOX.x); d.style.top = px(254 - REPLYBOX.y + i * 21);
+  const html = i < 2 ? l.replace("TOPCAFÉ", "<b>TOPCAFÉ</b>").replace("Café Latte 3 en 1", "<b>Café Latte 3 en 1</b>") : l;
+  d.innerHTML = `<span class="mask"><span>${html}</span></span>`;
+  $("replyLines").appendChild(d);
+});
+$("ask2").style.left = px(ORDER.x - REPLYBOX.x); $("ask2").style.top = px(386 - REPLYBOX.y);
+["order", "more"].forEach(id => { const r = id === "order" ? ORDER : MORE; box($(id), {x: r.x - REPLYBOX.x, y: r.y - REPLYBOX.y, w: r.w, h: r.h}); });
+$("floodWords").innerHTML = typed.map(l => `<div><span class="mask"><span>${l}</span></span></div>`).join("");
+const fwSpans = [...$("floodWords").querySelectorAll(".mask>span")];
+const big1 = LINE1.map(w => `<span class="mask"><span>${w}</span></span>`).join(" ");
+$("big1").innerHTML = big1; $("big2").innerHTML = LINE2.map((w, i) => `<span class="mask"><span${i >= 3 ? ' style="color:#cdf24f"' : ""}>${w}</span></span>`).join(" ");
+const b1 = [...$("big1").querySelectorAll(".mask>span")], b2 = [...$("big2").querySelectorAll(".mask>span")];
+$("big1").style.top = "418px"; $("big2").style.top = "540px";
+// ingrédients : grain, goutte de lait, sucre, cannelle, cacao, caramel
+const ING = [
+  {svg:'<svg width="30" height="38" viewBox="0 0 30 38"><ellipse cx="15" cy="19" rx="13" ry="17" fill="#6b3b1e"/><path d="M15 3c-5 9 5 22 0 32" stroke="#2a1309" stroke-width="3" fill="none"/></svg>', w:30, h:38, vx:-120, v:620},
+  {svg:'<svg width="28" height="36" viewBox="0 0 28 36"><path d="M14 2C9 12 3 17 3 24a11 11 0 0 0 22 0c0-7-6-12-11-22z" fill="#fff" stroke="#d9dde4" stroke-width="2"/></svg>', w:28, h:36, vx:70, v:700},
+  {svg:'<svg width="30" height="30" viewBox="0 0 30 30"><rect x="2" y="2" width="26" height="26" rx="5" fill="#fff" stroke="#e2e2dc" stroke-width="2"/><rect x="6" y="6" width="9" height="9" rx="2" fill="#f1f1ec"/></svg>', w:30, h:30, vx:150, v:560},
+  {svg:'<svg width="46" height="16" viewBox="0 0 46 16"><rect x="1" y="2" width="44" height="12" rx="6" fill="#b5622c"/><rect x="1" y="2" width="44" height="5" rx="2.5" fill="#d98a4a"/></svg>', w:46, h:16, vx:-40, v:760},
+  {svg:'<svg width="26" height="26" viewBox="0 0 26 26"><circle cx="13" cy="13" r="12" fill="#3b1d0e"/><circle cx="9" cy="9" r="3" fill="#5c3018"/></svg>', w:26, h:26, vx:-170, v:520},
+  {svg:'<svg width="30" height="26" viewBox="0 0 30 26"><path d="M4 18c-3-8 6-15 13-12 8-4 14 6 9 12-3 5-19 6-22 0z" fill="#ffb21f"/><path d="M9 12c3-3 8-3 11 0" stroke="#ffd36a" stroke-width="3" fill="none" stroke-linecap="round"/></svg>', w:30, h:26, vx:110, v:650},
+];
+const ingEls = ING.map(g => { const d = document.createElement("div"); d.className = "ing"; d.innerHTML = g.svg; $("ings").appendChild(d); return d; });
+
+// ===================================================================== seek(t)
+function seek(t) {
+  // ---------- caméra
+  CAMNOW = camera(t);
+  const c = CAMNOW;
+  $("world").style.transform = `translate(960px,540px) scale(${c.z}) translate(${-c.cx}px,${-c.cy}px)`;
+
+  // ---------- ASK : saisie de la demande
+  const nTyped = E.keys.filter(k => k <= t).length;
+  let left = nTyped;
+  typed.forEach((l, i) => { const n = clamp(left, 0, l.length); $("l" + i).textContent = l.slice(0, n); left -= l.length + 1; });
+  // message : composer → bulle (ripple citron puis morphing)
+  const ripK = oC(prog(t, E.send, E.send + 0.26));
+  const morphK = spring(t - (E.send + 0.2), 1.6, 0.78);
+  const M = rectLerp(COMPOSER, BUBBLE, morphK);
+  box($("msg"), M); $("msg").style.borderRadius = px(M.r) + " " + px(M.r) + " " + px(lerp(M.r, 6, morphK)) + " " + px(M.r);
+  const fs = lerp(COMPOSER.fs, BUBBLE.fs, morphK), lh = lerp(COMPOSER.lh, BUBBLE.lh, morphK);
+  $("msgText").style.left = px(lerp(COMPOSER.px, BUBBLE.px, morphK)); $("msgText").style.top = px(lerp(COMPOSER.py, BUBBLE.py, morphK));
+  for (let i = 0; i < 3; i++) { const l = $("l" + i); l.style.fontSize = px(fs); l.style.top = px(i * lh); }
+  // curseur de saisie
+  const curLine = Math.min(2, typed.findIndex((l, i) => typed.slice(0, i + 1).join("\n").length >= nTyped));
+  const caretOn = t < E.send && (t < E.typeEnd + 0.05 || Math.floor(t * 2.6) % 2 === 0);
+  show($("caret"), caretOn);
+  if (caretOn) { const L = $("l" + Math.max(0, curLine)); $("caret").style.left = px(L.offsetWidth + 2); $("caret").style.top = px(Math.max(0, curLine) * lh + 3); $("caret").style.height = px(fs * 1.25); }
+  // ripple : depuis le bouton d'envoi jusqu'au coin le plus éloigné du composer
+  const bxl = BTN0.x - COMPOSER.x, byl = BTN0.y - COMPOSER.y;
+  const R = Math.hypot(Math.max(bxl, COMPOSER.w - bxl), Math.max(byl, COMPOSER.h - byl)) + 4;
+  const rr = R * ripK * 1.05;
+  const rip = $("ripple"); show(rip, t >= E.send);
+  rip.style.left = px(bxl - rr); rip.style.top = px(byl - rr); rip.style.width = rip.style.height = px(rr * 2);
+  if (ripK >= 1) show(rip, false);
+  $("msg").style.background = ripK >= 1 ? "#cdf24f" : "#fff";
+  // lueur irisée : tourne, puis se rétracte derrière la bulle
+  const gIn = 1 - oC(prog(t, E.send, E.send + 0.35));
+  const g = $("glow"); show(g, gIn > 0);
+  const spread = lerp(-6, 12, gIn);
+  box(g, {x: M.x - spread, y: M.y - spread, w: M.w + spread * 2, h: M.h + spread * 2});
+  g.style.background = `conic-gradient(from ${t * 80}deg at 50% 50%, #ff5fa2, #ff6a2a, #cdf24f, #3fd8ff, #8b5cff, #ff5fa2)`;
+  g.style.borderRadius = px(M.r + spread);
+  // la lueur respire doucement
+  g.style.filter = `blur(${18 + Math.sin(t * 3) * 3}px)`;
+
+  // ---------- bouton d'envoi → wok
+  const press = t >= E.send - 0.12 ? 1 - 0.14 * kick(t - (E.send - 0.12), 2.2, 9) * 2 : 1;
+  const travel = spring(t - (E.send + 0.18), 1.3, 0.8);
+  const wokK = ioC(prog(t, E.send + 0.35, E.send + 0.85));
+  const bcx = lerp(BTN0.x, WOK.x, travel), bcy = lerp(BTN0.y, WOK.y, travel);
+  const bw = lerp(BTN0.d, WOK.w, wokK), bh = lerp(BTN0.d, WOK.h, wokK);
+  // secousses du wok sur chaque lancer
+  let tilt = 0, hop = 0;
+  E.toss.forEach(tk => { tilt += -16 * kick(t - tk + 0.06, 2.3, 6); hop += -14 * Math.max(0, kick(t - tk + 0.06, 2.3, 8)); });
+  const dropOut = t >= E.drop;            // le wok est recouvert par l'aplat
+  const btn = $("btn"); show(btn, t < E.drop + 0.4);
+  box(btn, {x: bcx - bw / 2, y: bcy - bh / 2 + hop, w: bw, h: bh});
+  btn.style.transform = `scale(${press}) rotate(${tilt}deg)`;
+  const sh = $("btnShape");
+  const top = lerp(BTN0.d / 2, 0, wokK), bot = lerp(BTN0.d / 2, WOK.h, wokK);
+  sh.style.borderRadius = `${top}px ${top}px ${bot}px ${bot}px / ${top}px ${top}px ${bot}px ${bot}px`;
+  const col = (a, b) => a.map((v, i) => Math.round(lerp(v, b[i], wokK)));
+  const c1 = col([47, 107, 255], [255, 106, 42]), c2 = col([47, 107, 255], [224, 80, 26]);
+  sh.style.background = `linear-gradient(180deg, rgb(${c1}) 0%, rgb(${c2}) 100%)`;
+  sh.style.boxShadow = wokK > 0 ? `inset 0 ${4 * wokK}px 0 rgba(255,255,255,.35)` : "none";
+  const pl = $("plane"); pl.style.transform = `translate(-50%,-50%) scale(${1 - oC(prog(t, E.send + 0.3, E.send + 0.55))})`;
+  const hd = $("handle"); hd.style.left = px(bw - 6); hd.style.top = px(4); hd.style.width = px(110 * oC(prog(t, E.send + 0.6, E.send + 1.0)));
+  hd.style.transform = "rotate(-14deg)";
+  // ingrédients : trajectoires paraboliques en forme fermée
+  const G = 3600;
+  ingEls.forEach((el, i) => {
+    const g0 = ING[i];
+    let x = bcx + (i - 2.5) * 18, y = bcy + 10, rot = i * 40, vis = false;
+    E.toss.forEach((tk, n) => {
+      const v = g0.v * (0.85 + 0.12 * ((n + i) % 3)), tf = 2 * v / G, tau = t - tk;
+      if (tau >= 0 && tau <= tf) {
+        vis = true;
+        y = bcy - 8 - (v * tau - G * tau * tau / 2);
+        x = bcx + (i - 2.5) * 18 + g0.vx * (n % 2 ? -1 : 1) * tau * (1 - tau / tf) * 1.6;
+        rot = i * 40 + tau * 720 * (i % 2 ? 1 : -1);
+      }
+    });
+    show(el, vis && t < E.drop);
+    el.style.transform = `translate(${x - g0.w / 2}px,${y - g0.h / 2}px) rotate(${rot}deg)`;
+  });
+  const th = $("thinking"); th.style.top = px(WOK.y + 92); show(th, t > E.send + 0.5 && t < E.drop + 0.4);
+  rise($("thinkTxt"), oC(prog(t, E.send + 0.75, E.send + 1.15)));
+  $("thinkTxt").style.backgroundPosition = `${100 - ((t * 0.9) % 1) * 150}% 0`;
+
+  // ---------- DROP : aplat citron depuis le wok
+  const wokP = proj(WOK.x, WOK.y);
+  const far = Math.max(...[[0, 0], [1920, 0], [0, 1080], [1920, 1080]].map(([a, b]) => Math.hypot(a - wokP.x, b - wokP.y))) + 30;
+  const fl = $("flood"), cardsBox = $("cards");
+  const contract = ioC(prog(t, E.chat, E.chat + 0.48));
+  if (t < E.drop) { show(fl, false); }
+  else if (t < E.chat) {
+    show(fl, true);
+    const r = far * oC(prog(t, E.drop, E.drop + 0.35));
+    box(fl, {x: wokP.x - r, y: wokP.y - r, w: r * 2, h: r * 2}); fl.style.borderRadius = "50%";
+    cardsBox.style.left = px(-(wokP.x - r)); cardsBox.style.top = px(-(wokP.y - r));
+  } else {
+    // l'aplat se contracte dans la bulle de l'utilisateur
+    const bub = projRect(BUBBLE);
+    const full = {x: -40, y: -40, w: 2000, h: 1160, r: 0};
+    const Rr = rectLerp(full, bub, contract);
+    show(fl, contract < 1);
+    box(fl, Rr); fl.style.borderRadius = `${Rr.r}px ${Rr.r}px ${lerp(0, 6 * c.z, contract)}px ${Rr.r}px`;
+    cardsBox.style.left = px(-Rr.x); cardsBox.style.top = px(-Rr.y);
+  }
+  // mots de la demande portés par l'aplat (élément partagé avec la bulle)
+  const fw = $("floodWords");
+  show(fw, t >= E.drop && contract < 1);
+  {
+    const bub = projRect(BUBBLE);
+    const a = {x: 130, y: 96, fs: 30, lh: 42};
+    const b = {x: bub.x + BUBBLE.px * c.z, y: bub.y + BUBBLE.py * c.z, fs: BUBBLE.fs * c.z, lh: BUBBLE.lh * c.z};
+    fw.style.left = px(lerp(a.x, b.x, contract)); fw.style.top = px(lerp(a.y, b.y, contract));
+    fw.style.fontSize = px(lerp(a.fs, b.fs, contract)); fw.style.lineHeight = px(lerp(a.lh, b.lh, contract));
+    fwSpans.forEach((s, i) => rise(s, oC(prog(t, E.drop + 0.22 + i * 0.07, E.drop + 0.55 + i * 0.07))));
+  }
+  // cartes : jaillissent du centre, glissent, la meilleure se soulève
+  const slideK = spring(t - E.slide, 1.05, 0.72);
+  const scroll = lerp(0, PICK, slideK);
+  const liftK = spring(t - E.lift, 2.0, 0.6);
+  const cardPos = i => {
+    const bk = spring(t - E.burst - Math.abs(i - 0) * 0.035, 1.7, 0.62);
+    const tx = 960 + (i - scroll) * 372, ty = 600;
+    const x = lerp(960, tx, bk), y = lerp(560, ty, bk);
+    let s = lerp(0.25, 1, bk), lift = 0;
+    if (i === PICK) { lift = -30 * liftK; s *= 1 + 0.06 * liftK; }
+    return {x, y: y + lift, s, rot: (1 - bk) * (i - 2) * 9, vis: t >= E.burst};
+  };
+  cardEls.forEach((el, i) => {
+    const p = cardPos(i);
+    show(el, p.vis && !(i === PICK && t >= E.chat));
+    el.style.transform = `translate(${p.x - 165}px,${p.y - 220}px) scale(${p.s}) rotate(${p.rot}deg)`;
+    el.style.zIndex = i === PICK ? 5 : 1;
+  });
+  // la carte choisie vole jusqu'à son emplacement dans la réponse
+  const flyK = ioC(prog(t, E.chat, E.chat + 0.5));
+  const fly = $("flyer"); show(fly, t >= E.chat && flyK < 1);
+  if (t >= E.chat) {
+    const p = cardPos(PICK);
+    const from = {x: p.x - 165 * p.s, y: p.y - 220 * p.s, s: p.s};
+    const sl = projRect({x: SLOT.x, y: SLOT.y, w: SLOT.w, h: SLOT.h});
+    const to = {x: sl.x, y: sl.y, s: sl.w / 330};
+    const s = Math.exp(lerp(Math.log(from.s), Math.log(to.s), flyK));
+    flyer.style.transform = `translate(${lerp(from.x, to.x, flyK)}px,${lerp(from.y, to.y, flyK) - Math.sin(flyK * Math.PI) * 60}px) scale(${s})`;
+    flyer.style.borderRadius = px(lerp(28, 9 / to.s, flyK));
+  }
+  // pastille « Meilleur choix »
+  const bestK = spring(t - (E.lift + 0.08), 2.4, 0.5);
+  const be = $("best"); show(be, t >= E.lift && t < E.chat);
+  { const p = cardPos(PICK); be.style.left = px(p.x - 95); be.style.top = px(p.y - 220 * p.s - 26); be.style.transform = `scale(${bestK})`; }
+
+  // ---------- CHAT : réponse de TOPCAFÉ
+  const showChat = t >= E.chat;
+  const av = $("avatar"); show(av, showChat); box(av, {x: 18, y: 236, w: 40, h: 40});
+  av.style.transform = `scale(${spring(t - E.chat - 0.05, 2.2, 0.55)})`;
+  const rp = $("reply"); show(rp, showChat); box(rp, REPLYBOX);
+  const rk = spring(t - E.chat - 0.1, 1.8, 0.68);
+  rp.style.transform = `scale(${lerp(0.08, 1, rk)})`;
+  rp.style.borderRadius = "6px 22px 22px 22px";
+  $("slot").style.visibility = flyK >= 1 ? "visible" : "hidden";
+  [...$("replyLines").children].forEach((d, i) => rise(d.firstChild.firstChild, oC(prog(t, E.reply1 + i * 0.07, E.reply1 + 0.32 + i * 0.07))));
+  rise($("ask2").firstChild.firstChild, oC(prog(t, E.reply2, E.reply2 + 0.32)));
+  const pk1 = spring(t - E.pills, 2.2, 0.6), pk2 = spring(t - E.pills - 0.08, 2.2, 0.6);
+  const clickK = t >= E.click ? 1 - 0.07 * Math.max(0, kick(t - E.click, 2.5, 8)) * 1.6 : 1;
+  $("order").style.transform = `scale(${pk1 * clickK})`; $("more").style.transform = `scale(${pk2})`;
+  // états du bouton : libellé → sablier → commandé (glissent dans le masque du bouton)
+  const sOut = oC(prog(t, E.click + 0.04, E.click + 0.22)), dIn = oC(prog(t, E.ordered, E.ordered + 0.22));
+  $("lblOrder").style.transform = `translateY(${-sOut * 60}px)`;
+  $("lblSpin").style.transform = `translateY(${(1 - sOut) * 60 - dIn * 60}px)`;
+  $("spin").style.transform = `rotate(${t * 720}deg)`;
+  $("lblDone").style.transform = `translateY(${(1 - dIn) * 60}px)`;
+  $("lblDone").style.visibility = t < E.outro ? "visible" : "hidden";
+  // curseur
+  const cu = $("cursor");
+  const target = proj(ORDER.x + ORDER.w * 0.62, ORDER.y + ORDER.h * 0.6);
+  const ck = ioC(prog(t, E.pills + 0.1, E.click - 0.04));
+  show(cu, t > E.pills + 0.1 && t < E.outro + 0.1);
+  cu.style.transform = `translate(${lerp(1500, target.x, ck)}px,${lerp(1010, target.y, ck)}px) scale(${t >= E.click ? 1 - 0.18 * Math.max(0, kick(t - E.click, 2.5, 8)) : 1})`;
+
+  // ---------- OUTRO : le bouton noir devient la page
+  const pg = $("page"), pl2 = $("pageLabel");
+  const pk = ioC(prog(t, E.outro, E.outro + 0.55));
+  show(pg, t >= E.outro);
+  if (t >= E.outro) {
+    const o = projRect({x: ORDER.x, y: ORDER.y, w: ORDER.w, h: ORDER.h});
+    const full = {x: -60, y: -60, w: 2040, h: 1200};
+    const Rr = rectLerp(o, full, pk);
+    box(pg, Rr);
+    pg.style.borderRadius = px((Rr.h / 2) * (1 - Math.pow(prog(pk, 0.7, 1), 2)));
+  }
+  // libellé « ✓ Commandé » : du bouton au titre, puis il glisse hors champ
+  show(pl2, t >= E.outro && t < E.line1 + 0.3);
+  if (t >= E.outro) {
+    const lab = proj(ORDER.x + ORDER.w / 2, ORDER.y + ORDER.h / 2);
+    const gk = ioC(prog(t, E.outro + 0.1, E.outro + 0.62));
+    const fsz = lerp(16 * c.z, 132, gk);
+    pl2.style.fontSize = px(fsz);
+    const w = fsz * 6.1, h = fsz * 1.2;
+    const cx2 = lerp(lab.x, 960, gk), cy2 = lerp(lab.y, 540, gk);
+    const away = iC(prog(t, E.line1 - 0.32, E.line1 + 0.05));
+    pl2.style.left = px(cx2 - w / 2 - away * 1500); pl2.style.top = px(cy2 - h / 2);
+  }
+  // deux lignes mot à mot, depuis une ligne de masque
+  const away2 = (i, n) => oC(prog(t, E.textAway + i * 0.05, E.textAway + 0.3 + i * 0.05));
+  show($("big1"), t >= E.line1 - 0.1 && t < E.textAway + 0.8); show($("big2"), t >= E.line2 - 0.1 && t < E.textAway + 0.8);
+  b1.forEach((s, i) => rise(s, oC(prog(t, E.line1 + i * 0.115, E.line1 + 0.3 + i * 0.115)), away2(i)));
+  b2.forEach((s, i) => rise(s, oC(prog(t, E.line2 + i * 0.115, E.line2 + 0.3 + i * 0.115)), away2(i + 2)));
+  // itinéraire : le livreur suit la route jusqu'à l'épingle
+  const route = $("route"), L = route.getTotalLength();
+  const rD = oC(prog(t, E.route, E.route + 0.55));
+  const rRet = ioC(prog(t, E.mark + 0.05, E.mark + 0.45));
+  show($("routeSvg"), t >= E.route && rRet < 1);
+  route.style.strokeDashoffset = 0;
+  route.setAttribute("stroke-dasharray", `2 14`);
+  route.style.clipPath = "none";
+  const visLen = L * rD, startLen = L * rRet;
+  route.setAttribute("stroke-dasharray", `0 ${startLen} ${Math.max(0, visLen - startLen)} ${L * 2}`);
+  route.style.strokeDasharray = "";
+  const cK = ioC(prog(t, E.route + 0.2, E.pin));
+  const cp = route.getPointAtLength(L * cK);
+  const cour = $("courier"); cour.setAttribute("cx", cp.x); cour.setAttribute("cy", cp.y);
+  cour.setAttribute("r", 13 * (1 - oC(prog(t, E.pin - 0.04, E.pin + 0.1))));
+  // épingle → marque
+  const pinK = spring(t - E.pin, 2.4, 0.5), mk = spring(t - E.mark, 1.6, 0.7);
+  const pin = $("pin"); show(pin, t >= E.pin);
+  const ps = lerp(64, ENDMARK.d, mk);
+  box(pin, {x: ENDMARK.x - ps / 2, y: ENDMARK.y - ps / 2 - lerp(40, 0, mk), w: ps, h: ps});
+  pin.style.transform = `scale(${pinK})`;
+  const sp2 = $("pinShape"); sp2.style.inset = "0";
+  const rad = lerp(0, 50, mk);
+  sp2.style.borderRadius = `50% 50% ${lerp(4, 50, mk)}% 50%`;
+  sp2.style.transform = `rotate(${lerp(45, 0, mk)}deg)`;
+  const pc = [205, 242, 79].map((v, i) => Math.round(lerp(v, [29, 79, 184][i], mk)));
+  sp2.style.background = `rgb(${pc})`;
+  sp2.style.boxShadow = `inset 0 0 0 ${lerp(16, 0, mk)}px rgb(${pc}), inset 0 0 0 ${lerp(26, 0, mk)}px #0e0e10`;
+  const mc = $("markCup"); const mcs = oC(prog(t, E.mark + 0.15, E.mark + 0.45));
+  mc.style.left = "22%"; mc.style.top = "30%"; mc.style.width = "56%"; mc.style.height = "40%"; mc.style.transform = `scale(${mcs})`;
+  // mot-symbole qui sort de derrière la marque
+  const wk = oQ(prog(t, E.wordmark, E.wordmark + 0.5));
+  const WMH = 150, WMW = WMH * 709 / 317;
+  const wm = $("wm"); show(wm, t >= E.wordmark);
+  box(wm, {x: ENDMARK.x, y: ENDMARK.y - WMH / 2, w: WMW + 120, h: WMH});
+  const wi = $("wmImg"); wi.style.height = px(WMH); wi.style.left = px(lerp(-WMW, 110, wk)); wi.style.top = "0";
+  const endBlockX = ENDMARK.x + 110;
+  $("endAbove").style.left = px(endBlockX); $("endAbove").style.top = px(ENDMARK.y - WMH / 2 - 44);
+  $("endName").style.left = px(endBlockX); $("endName").style.top = px(ENDMARK.y + WMH / 2 + 14);
+  $("endTag").style.left = px(endBlockX + 4); $("endTag").style.top = px(ENDMARK.y + WMH / 2 + 104);
+  show($("endAbove"), t >= E.wordmark); show($("endName"), t >= E.wordmark); show($("endTag"), t >= E.wordmark);
+  rise($("endAbove").firstChild.firstChild, oC(prog(t, E.wordmark + 0.12, E.wordmark + 0.45)));
+  rise($("endName").firstChild.firstChild, oC(prog(t, E.wordmark + 0.22, E.wordmark + 0.58)));
+  rise($("endTag").firstChild.firstChild, oC(prog(t, E.wordmark + 0.36, E.wordmark + 0.7)));
+  // sachet TOPCAFÉ (visuel fourni, proportions intactes)
+  const es = $("endSachet"); show(es, t >= E.wordmark - 0.1);
+  const sk = spring(t - (E.wordmark - 0.1), 1.5, 0.72);
+  const SH = 640, SW = SH * 1052 / 1324;
+  box(es, {x: 1480 - SW / 2, y: 540 - SH / 2 + lerp(760, 0, sk), w: SW, h: SH});
+  es.style.transform = `rotate(${lerp(8, -3, sk) - (t - E.wordmark) * 0.6}deg)`;
+  es.style.filter = "drop-shadow(0 30px 40px rgba(0,0,0,.5))";
+  // légère dérive continue de la carte finale (pas de plan figé)
+  const drift = 1 + Math.max(0, t - E.wordmark) * 0.012;
+  ["pin", "wm", "endAbove", "endName", "endTag"].forEach(id => { $(id).style.scale = drift; $(id).style.transformOrigin = `${ENDMARK.x}px 540px`; });
+}
+window.seek = seek;
+window.ready = document.fonts.ready.then(() => Promise.all([...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; }))));
+seek(0);
+</script>
+</body></html>
