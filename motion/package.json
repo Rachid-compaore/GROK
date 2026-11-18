@@ -1,0 +1,6 @@
+{
+  "name": "motion-produits",
+  "private": true,
+  "scripts": { "render": "node render.js && ffmpeg -y -framerate 30 -i frames/f%04d.jpg -c:v libx264 -crf 18 -pix_fmt yuv420p video.mp4" },
+  "dependencies": { "@fontsource/playfair-display": "^5.0.0", "@fontsource/poppins": "^5.0.0", "playwright": "*" }
+}
