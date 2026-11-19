@@ -1,0 +1,24 @@
+{
+  "name": "olara-astuces",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio",
+    "audio": "python3 scripts/make_audio.py",
+    "render": "remotion render OlaraAstuces out/olara-astuces-cuisine-25s.mp4 --codec=h264 --crf=16"
+  },
+  "dependencies": {
+    "@fontsource/grandstander": "^5.3.0",
+    "@fontsource/krona-one": "^5.3.0",
+    "@fontsource/roboto-condensed": "^5.3.0",
+    "@fontsource/unbounded": "^5.3.0",
+    "@remotion/cli": "^4.0.545",
+    "@remotion/fonts": "^4.0.545",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.545"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "typescript": "^5.6.3"
+  }
+}
