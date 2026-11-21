@@ -56,7 +56,7 @@ const Film: React.FC = () => {
   );
 };
 
-const Bars: React.FC<{ h: number }> = ({ h }) => (
+export const Bars: React.FC<{ h: number }> = ({ h }) => (
   <>
     <div style={{ position: "absolute", left: 0, right: 0, top: 0, height: h, background: "#000" }} />
     <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: h, background: "#000" }} />
@@ -139,7 +139,7 @@ const SloganLetters: React.FC<{ at: number; size: number }> = ({ at, size }) => 
   );
 };
 
-const Packshot: React.FC = () => {
+export const Packshot: React.FC = () => {
   const f = useCurrentFrame(); // temps local : 0 = 9,9 s
   const t = f / FPS;
   const reveal = tw(f, 0.0, 0.6, 0, 1, EASE.inOut);
@@ -209,7 +209,7 @@ const Packshot: React.FC = () => {
 };
 
 /** Grain pellicule sur tout le film. */
-const Grain: React.FC = () => {
+export const Grain: React.FC = () => {
   const f = useCurrentFrame();
   return (
     <AbsoluteFill style={{ pointerEvents: "none", opacity: 0.05, mixBlendMode: "overlay" }}>

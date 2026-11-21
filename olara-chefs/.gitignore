@@ -1,3 +1,4 @@
 node_modules/
 previews/*.png
 public/music_raw.wav
+public/music-long_raw.wav

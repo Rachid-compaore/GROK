@@ -30,3 +30,24 @@ un service comme ElevenLabs) en WAV dans `public/media/`, puis relancez `npm run
 - `scripts/detourer_pot.py` : détourage du pot (contour mesuré, fond bleu retiré au col).
 - `scripts/make_audio.py` : mixage final.
 - `src/OlaraChefs.tsx` : composition Remotion (film habillé + packshot).
+
+## Version longue (23 s) — `renders/olara-le-secret-des-chefs-long.mp4`
+Montage refait **uniquement avec des images réelles** :
+- un macro de la moutarde puis du logo, tiré de la photo du pot ;
+- la cuisinière (plan A) ;
+- la cuillère dans le pot, **ralentie ×0,5** par interpolation de mouvement (plan B) ;
+- la texture crémeuse en très gros plan (photo) ;
+- la poêle, **ralentie ×0,5** (plan C) ;
+- le repas en famille (plan D) ;
+- le pot et l'assiette (plan E) ;
+- puis le packshot « LE SECRET DES CHEFS ».
+
+S'y ajoutent des mouvements de caméra lents sur chaque plan, un étalonnage chaud, des fuites de lumière aux
+raccords, des bandes cinéma, du grain et des titres éditoriaux (le texte de la voix off).
+
+**Son** : la voix Gemini est retirée, car ses mots ne convenaient pas et elle ne peut pas être isolée de la
+musique. Elle est remplacée par une musique chaleureuse (88 BPM, ré majeur) et des bruitages de cuisine
+synchronisés : cuillère, moutarde qui tombe, grésillement de la poêle, couverts, impact du slogan.
+`scripts/voix-off.md` contient le texte et le minutage d'une voix off professionnelle. Déposez
+l'enregistrement dans `public/media/voix-off.wav` : `scripts/make_audio_long.py` le mixe automatiquement
+et baisse la musique sous la voix.
