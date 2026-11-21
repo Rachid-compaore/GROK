@@ -27,7 +27,7 @@ const EV = { logo: 2.2, bag: 4.6, title: 6.0, toCards: 9.2, cards: [9.6, 11.0, 1
 /** Éléments découpés du visuel fourni (dimensions des fichiers). */
 const BAG = { src: "media/sachet.png", w: 468, h: 868 };
 const LOGO = { src: "media/logo-warda.png", w: 345, h: 345 };
-const PLATE = { src: "media/plat.png", w: 496, h: 375 };
+const PLATE = { src: "media/plat-photo.jpg", w: 948, h: 796 };
 
 const useLayout = () => {
   const { width, height } = useVideoConfig();
@@ -195,7 +195,19 @@ const Plate: React.FC<{ width: number; steamAt: number }> = ({ width, steamAt })
   const a = tw(f, steamAt, steamAt + 1.0, 0, 0.8);
   return (
     <div style={{ position: "relative", width, height: h }}>
-      <Img src={staticFile(PLATE.src)} style={{ width, height: h, filter: "drop-shadow(0 30px 40px rgba(0,0,0,0.5)) saturate(1.06)" }} />
+      {/* photo du plat fondue dans le décor : bords gauche, haut et bas en dégradé, bord droit collé au cadre */}
+      <Img
+        src={staticFile(PLATE.src)}
+        style={{
+          width,
+          height: h,
+          filter: "saturate(1.06) contrast(1.03)",
+          WebkitMaskImage: "linear-gradient(90deg, transparent 0%, #000 26%), linear-gradient(180deg, transparent 0%, #000 22%, #000 86%, transparent 100%)",
+          WebkitMaskComposite: "source-in",
+          maskImage: "linear-gradient(90deg, transparent 0%, #000 26%), linear-gradient(180deg, transparent 0%, #000 22%, #000 86%, transparent 100%)",
+          maskComposite: "intersect",
+        }}
+      />
       {a > 0 && (
         <svg width={width * 0.6} height={h * 1.2} style={{ position: "absolute", left: width * 0.25, top: -h * 0.95, opacity: a, overflow: "visible", WebkitMaskImage: "linear-gradient(0deg, transparent 0%, #000 25%, #000 50%, transparent 100%)", maskImage: "linear-gradient(0deg, transparent 0%, #000 25%, #000 50%, transparent 100%)" }}>
           {[0, 1, 2, 3].map((k) => {
@@ -297,8 +309,8 @@ export const Warda: React.FC = () => {
   const bagVisible = t >= EV.bag - 0.2 && (t < EV.dish + 0.3 || t >= EV.final - 0.2);
   const cardsPhase = t >= EV.toCards && t < EV.final;
   const finalPhase = t >= EV.final - 0.1;
-  const bagHeight = portrait ? (cardsPhase ? BH * 0.7 : finalPhase ? BH * 0.58 : BH * 0.9) : finalPhase ? BH * 0.92 : BH;
-  const floorNow = portrait ? (cardsPhase ? 1680 : finalPhase ? 1410 : floorY) : floorY;
+  const bagHeight = portrait ? (cardsPhase ? BH * 0.7 : finalPhase ? BH * 0.5 : BH * 0.9) : finalPhase ? BH * 0.92 : BH;
+  const floorNow = portrait ? (cardsPhase ? 1680 : finalPhase ? 1300 : floorY) : floorY;
   const bagTop = floorNow - bagHeight;
   const bagLift = t < EV.final - 0.1 ? (1 - rise) * 700 + toDish * -900 : (1 - toFinal) * 600;
 
@@ -372,7 +384,7 @@ const DishScene: React.FC = () => {
   const { W, H, pick } = useLayout();
   const wipe = tw(f, EV.dish - 0.6, EV.dish + 0.2, 0, 1, EASE.inOut);
   const out = tw(f, EV.final - 0.5, EV.final + 0.3, 0, 1, EASE.inOut);
-  const pw = pick(1150, 1000);
+  const pw = pick(1200, 1080);
   const ph = (pw * PLATE.h) / PLATE.w;
   const push = 1 + tw(f, EV.dish, EV.final, 0, 0.06, EASE.soft);
   const x = -400 + wipe * (W + 800);
@@ -382,8 +394,8 @@ const DishScene: React.FC = () => {
       <AbsoluteFill style={{ background: "radial-gradient(ellipse at 70% 55%, #8a3a12 0%, #4a0a0c 50%, #1a0203 100%)" }} />
       <Pattern draw={1} opacity={0.1} />
       <AbsoluteFill style={{ transform: `scale(${push})`, transformOrigin: "80% 70%" }}>
-        <div style={{ position: "absolute", left: W - pw, top: pick(H - ph - 40, H - ph - 120) }}>
-          <Plate width={pw} steamAt={EV.dish + 0.3} />
+        <div style={{ position: "absolute", left: W - pw, top: pick(H - ph + 10, H - ph + 20) }}>
+          <Plate width={pw} steamAt={99} />
         </div>
       </AbsoluteFill>
       <FloatingGrains seed="dish" count={30} />
@@ -405,12 +417,12 @@ const FinalScene: React.FC = () => {
   const f = useCurrentFrame();
   const { W, H, pick } = useLayout();
   const plateIn = spr(f, EV.final + 0.15, 15, 1, 90);
-  const pw = pick(720, 900);
+  const pw = pick(820, 1080);
   const ph = (pw * PLATE.h) / PLATE.w;
   const badge = spr(f, EV.badge, 11, 0.8, 140);
   return (
     <AbsoluteFill style={{ zIndex: 4, pointerEvents: "none" }}>
-      <div style={{ position: "absolute", left: W - pw + (1 - plateIn) * 500, top: pick(H - (720 * PLATE.h) / PLATE.w - 30, 1400) }}>
+      <div style={{ position: "absolute", left: W - pw + (1 - plateIn) * 500, top: pick(H - ((820 * PLATE.h) / PLATE.w) * 0.8, 1330) }}>
         <Plate width={pw} steamAt={99} />
       </div>
       <div style={{ position: "absolute", left: pick(W / 2 + 70, W / 2 - 150), top: pick(24, 70), zIndex: 9 }}>

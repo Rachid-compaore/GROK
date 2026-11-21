@@ -42,3 +42,9 @@ plate = (xx > 530) & (yy > 855) & (yy < 1225)
 ell = ((xx - 790) / 270.0) ** 2 + ((yy - 1050) / 175.0) ** 2 <= 1
 dome = (yy < 1060) & (((xx - 800) / 250.0) ** 2 + ((yy - 1000) / 150.0) ** 2 <= 1)
 save(plate & (ell | dome), "plat", 1.2)
+
+# ---- plat : remplacé par un cadre photo fondu (le plat est coupé par le bord de l'image source,
+# un détourage serait forcément imparfait). Les bords sont fondus dans la mise en scène.
+c = SRC.crop((550, 838, 1024, 1236))
+c = c.resize((c.width * 2, c.height * 2), Image.LANCZOS).filter(ImageFilter.UnsharpMask(1.4, 40, 2))
+c.save("public/media/plat-photo.jpg", quality=94); print("plat-photo", c.size)
