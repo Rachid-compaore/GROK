@@ -1,0 +1,4 @@
+node_modules/
+renders/*.png
+public/music_raw.wav
+previews/*.png
