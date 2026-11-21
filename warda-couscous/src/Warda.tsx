@@ -413,8 +413,8 @@ const FinalScene: React.FC = () => {
       <div style={{ position: "absolute", left: W - pw + (1 - plateIn) * 500, top: pick(H - (720 * PLATE.h) / PLATE.w - 30, 1400) }}>
         <Plate width={pw} steamAt={99} />
       </div>
-      <div style={{ position: "absolute", left: pick(W / 2 + 40, W / 2 - 150), top: pick(40, 70), zIndex: 9 }}>
-        <Logo size={pick(250, 300)} at={EV.final + 0.4} shineAt={EV.final + 1.4} />
+      <div style={{ position: "absolute", left: pick(W / 2 + 70, W / 2 - 150), top: pick(24, 70), zIndex: 9 }}>
+        <Logo size={pick(205, 300)} at={EV.final + 0.4} shineAt={EV.final + 1.4} />
       </div>
       <div style={{ position: "absolute", left: pick(940, 0), top: pick(230, 380), width: pick(880, W), textAlign: pick("left", "center") as "left", zIndex: 9 }}>
         <Words text="Warda," at={EV.slogan} style={{ fontFamily: FONT.script, fontSize: pick(110, 120), color: C.cream, lineHeight: 1, textShadow: "0 6px 24px rgba(0,0,0,0.55)" }} />
