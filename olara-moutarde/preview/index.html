@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OLARA — Le goût qui réveille</title>
+<style>
+  :root { --bg: #080605; --fg: #fbf3dc; --gold: #e9c46a; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, sans-serif; min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; }
+  main { width: min(1100px, 100%); }
+  h1 { font: 600 13px/1 system-ui; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; }
+  .stage { position: relative; background: #000; border-radius: 12px; overflow: hidden; }
+  video { display: block; width: 100%; max-height: 80vh; background: #000; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  button, a { appearance: none; border: 1px solid rgba(233,196,106,.45); background: transparent; color: var(--fg); padding: 8px 14px; border-radius: 999px; font: 500 14px system-ui; cursor: pointer; text-decoration: none; }
+  button:hover, a:hover { background: rgba(233,196,106,.12); }
+  .sep { flex: 1; }
+</style>
+</head>
+<body>
+<main>
+  <h1>OLARA · Moutarde de Dijon — prévisualisation</h1>
+  <div class="stage"><video id="v" src="../renders/olara-moutarde-16x9.mp4" playsinline preload="auto"></video></div>
+  <div class="bar">
+    <button id="play">Lecture</button>
+    <button id="replay">Rejouer</button>
+    <button id="full">Plein écran</button>
+    <span class="sep"></span>
+    <button id="fmt">Format : 16:9</button>
+    <a id="dl" href="../renders/olara-moutarde-16x9.mp4" download>Télécharger le MP4</a>
+  </div>
+</main>
+<script>
+  const v = document.getElementById("v");
+  const files = { "16:9": "../renders/olara-moutarde-16x9.mp4", "9:16": "../renders/olara-moutarde-9x16.mp4" };
+  let fmt = "16:9";
+  document.getElementById("play").onclick = (e) => { v.paused ? v.play() : v.pause(); };
+  v.onplay = () => (document.getElementById("play").textContent = "Pause");
+  v.onpause = () => (document.getElementById("play").textContent = "Lecture");
+  document.getElementById("replay").onclick = () => { v.currentTime = 0; v.play(); };
+  document.getElementById("full").onclick = () => (v.requestFullscreen ? v.requestFullscreen() : v.webkitEnterFullscreen && v.webkitEnterFullscreen());
+  document.getElementById("fmt").onclick = (e) => {
+    fmt = fmt === "16:9" ? "9:16" : "16:9";
+    v.src = files[fmt]; document.getElementById("dl").href = files[fmt];
+    e.target.textContent = "Format : " + fmt; v.play();
+  };
+</script>
+</body>
+</html>

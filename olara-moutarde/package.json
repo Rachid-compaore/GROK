@@ -1,0 +1,23 @@
+{
+  "name": "olara-moutarde",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio",
+    "audio": "python3 scripts/make_audio.py",
+    "render:16x9": "remotion render OlaraMoutarde16x9 renders/olara-moutarde-16x9.mp4 --codec=h264 --crf=16",
+    "render:9x16": "remotion render OlaraMoutarde9x16 renders/olara-moutarde-9x16.mp4 --codec=h264 --crf=16"
+  },
+  "dependencies": {
+    "@fontsource/bodoni-moda": "^5.3.0",
+    "@fontsource/montserrat": "^5.3.0",
+    "@remotion/cli": "^4.0.545",
+    "@remotion/fonts": "^4.0.545",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.545"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "typescript": "^5.6.3"
+  }
+}
