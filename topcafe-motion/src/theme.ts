@@ -10,11 +10,11 @@ export const SLOGAN = "CRÉMEUX ET DÉLICIEUX";
 
 /** Scènes (secondes). Chaque scène recouvre la précédente pendant sa transition. */
 export const SCENES = {
-  opening: { from: 0, to: 4.6 },
-  threeInOne: { from: 4.5, to: 10.6 },
-  cappuccino: { from: 10.35, to: 17.6 },
-  latte: { from: 17.0, to: 24.6 },
-  final: { from: 24.0, to: 30 },
+  opening: { from: 0, to: 4.5 },
+  threeInOne: { from: 3.7, to: 10.5 },
+  cappuccino: { from: 9.7, to: 17.0 },
+  latte: { from: 16.2, to: 23.5 },
+  final: { from: 22.7, to: 30 },
 };
 
 export const PRODUCTS = {

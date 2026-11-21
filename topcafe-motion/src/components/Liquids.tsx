@@ -2,203 +2,148 @@ import React from "react";
 import { AbsoluteFill, random, useCurrentFrame } from "remotion";
 import { EASE, tw, useLayout } from "../theme";
 
-/**
- * Vague de lait crémeux qui traverse l'écran de gauche à droite (transition).
- * Front de vague ondulé, dégradé crème, liseré brillant et gouttelettes.
- */
-export const MilkWave: React.FC<{ at: number; dur?: number; color?: [string, string]; exit?: boolean }> = ({ at, dur = 1.0, color = ["#ffffff", "#f3e6cf"], exit = true }) => {
+/* ============================================================================
+ * Transition liquide : la scène entrante est révélée derrière un front de
+ * liquide lisse et brillant qui traverse l'écran. Le front est un ruban épais
+ * (lait, mousse, caramel, or) avec reflet spéculaire. Aucun écran vide : on
+ * passe directement d'une scène à l'autre.
+ * ========================================================================== */
+type Dir = "right" | "up" | "radial" | "diagonal";
+export type LiquidColors = { body: string; shade: string; shine: string };
+
+export const LiquidWipe: React.FC<{ children: React.ReactNode; dir: Dir; colors: LiquidColors; dur?: number; band?: number }> = ({ children, dir, colors, dur = 0.75, band = 150 }) => {
   const frame = useCurrentFrame();
   const { W, H } = useLayout();
   const t = frame / 60;
-  const k = tw(frame, at, at + dur, 0, 1, EASE.inOut);
-  const k2 = exit ? tw(frame, at + dur, at + dur + 0.7, 0, 1, EASE.in) : 0;
-  if (k <= 0 || k2 >= 1) return null;
-  const front = -0.35 * W + k * 1.55 * W; // bord d'attaque
-  const back = -0.35 * W + k2 * 1.6 * W; // bord de fuite (la vague repart)
-  const edge = (x0: number, dir: number) => {
-    let d = "";
-    for (let y = -40; y <= H + 40; y += 30) {
-      const x = x0 + Math.sin(y / 140 + t * 5) * 60 + Math.sin(y / 60 - t * 3) * 18 + dir * Math.sin((y / H) * Math.PI) * 120;
-      d += `L${x} ${y} `;
+  const k = tw(frame, 0, dur, 0, 1, EASE.inOut);
+  if (k >= 1) return <AbsoluteFill style={{ isolation: "isolate" }}>{children}</AbsoluteFill>;
+
+  // front ondulé, lisse (2 harmoniques lentes)
+  const wobble = (s: number, amp: number) => Math.sin(s / 260 + t * 4) * amp + Math.sin(s / 110 - t * 2.6) * amp * 0.28;
+  let front: [number, number][] = [];
+  let clip = "";
+  if (dir === "radial") {
+    const R = Math.hypot(W, H) * 0.62 + band;
+    const r = k * R;
+    for (let i = 0; i <= 90; i++) {
+      const a = (i / 90) * Math.PI * 2;
+      const rr = Math.max(0, r + Math.sin(a * 5 + t * 3) * 26 * Math.sin(Math.PI * k));
+      front.push([W / 2 + Math.cos(a) * rr, H / 2 + Math.sin(a) * rr]);
     }
-    return d;
-  };
-  const path = `M${back - 300} -40 ${edge(front, 1)} L${back - 300} ${H + 40} Z`;
-  const hole = k2 > 0 ? `M${back} -40 ${edge(back, -1).replace("L", "M")}` : "";
+    clip = `path('M${front.map((p) => p.join(" ")).join(" L")} Z')`;
+  } else {
+    const along = dir === "up" ? W : dir === "right" ? H : W + H;
+    const span = (dir === "up" ? H : dir === "right" ? W : W + H) + band * 2 + 200;
+    const pos = -band - 100 + k * span;
+    for (let s = -60; s <= along + 60; s += 30) {
+      const off = wobble(s, 46 * Math.sin(Math.PI * k) + 10);
+      if (dir === "right") front.push([pos + off, s]);
+      else if (dir === "up") front.push([s, H - pos + off]);
+      else front.push([pos - s * 0.5 + off, s * 0.85]);
+    }
+    const tail =
+      dir === "right" ? `L-200 ${H + 100} L-200 -100` : dir === "up" ? `L${W + 100} ${H + 200} L-100 ${H + 200}` : `L-${W} ${H * 2} L-${W} -200`;
+    clip = `path('M${front.map((p) => p.join(" ")).join(" L")} ${tail} Z')`;
+  }
+  // ruban de liquide le long du front
+  const ribbon = front.map((p) => p.join(",")).join(" ");
   return (
-    <AbsoluteFill style={{ pointerEvents: "none", zIndex: 40 }}>
-      <svg width={W} height={H} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
-        <defs>
-          <linearGradient id="milk" x1="0" y1="0" x2="1" y2="0.3">
-            <stop offset="0" stopColor={color[1]} />
-            <stop offset="0.85" stopColor={color[0]} />
-            <stop offset="1" stopColor="#ffffff" />
-          </linearGradient>
-          <clipPath id="behind">
-            <rect x={back} y={-100} width={W * 3} height={H + 200} />
-          </clipPath>
-        </defs>
-        <g clipPath={k2 > 0 ? "url(#behind)" : undefined}>
-          <path d={path} fill="url(#milk)" />
-          <path d={`M${front} -40 ${edge(front, 1)}`} fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="14" style={{ filter: "blur(3px)" }} />
-          <path d={`M${front - 40} -40 ${edge(front - 40, 1)}`} fill="none" stroke="rgba(200,170,130,0.35)" strokeWidth="26" style={{ filter: "blur(10px)" }} />
-        </g>
-        {hole && null}
-        {/* gouttelettes projetées par le front */}
-        {Array.from({ length: 22 }, (_, i) => {
-          const r = (q: string) => random(`drop${at}${i}${q}`);
-          const y = r("y") * H;
-          const life = (k * 1.4 + r("d")) % 1;
-          const x = front + 40 + life * (80 + r("v") * 220);
-          const s = (6 + r("s") * 18) * (1 - life);
-          return <circle key={i} cx={x} cy={y - life * 60} r={s} fill="#fff" opacity={0.9 * (1 - k2)} />;
+    <AbsoluteFill style={{ isolation: "isolate" }}>
+      <AbsoluteFill style={{ clipPath: clip }}>{children}</AbsoluteFill>
+      <svg width={W} height={H} style={{ position: "absolute", inset: 0, overflow: "visible", pointerEvents: "none" }}>
+        <polyline points={ribbon} fill="none" stroke={colors.shade} strokeWidth={band + 40} strokeLinejoin="round" style={{ filter: "blur(14px)" }} opacity={0.55} />
+        <polyline points={ribbon} fill="none" stroke={colors.body} strokeWidth={band} strokeLinejoin="round" />
+        <polyline points={ribbon} fill="none" stroke={colors.shine} strokeWidth={band * 0.18} strokeLinejoin="round" transform={`translate(${dir === "up" ? 0 : -band * 0.2} ${dir === "up" ? band * 0.2 : -band * 0.12})`} style={{ filter: "blur(3px)" }} opacity={0.9} />
+        {/* gouttelettes */}
+        {Array.from({ length: 14 }, (_, i) => {
+          const r = (q: string) => random(`wd${dir}${i}${q}`);
+          const p = front[Math.floor(r("i") * front.length)];
+          const life = (k * 2 + r("d")) % 1;
+          const dx = dir === "up" ? (r("x") - 0.5) * 40 : (60 + r("v") * 120) * life;
+          const dy = dir === "up" ? -(60 + r("v") * 140) * life : (r("y") - 0.5) * 40 - 40 * life;
+          return <circle key={i} cx={p[0] + dx} cy={p[1] + dy} r={(5 + r("s") * 12) * (1 - life)} fill={colors.body} />;
         })}
       </svg>
     </AbsoluteFill>
   );
 };
 
-/** Couronne d'éclaboussure de lait au pied du produit. */
-export const SplashCrown: React.FC<{ x: number; y: number; w: number; at: number; color?: string }> = ({ x, y, w, at, color = "#ffffff" }) => {
-  const frame = useCurrentFrame();
-  const t = frame / 60;
-  const g = tw(frame, at, at + 0.6, 0, 1, EASE.out);
-  if (g <= 0) return null;
-  const h = w * 0.32;
-  let d = `M0 ${h}`;
-  const n = 11;
-  for (let i = 0; i <= n; i++) {
-    const px = (i / n) * w;
-    const peak = (0.35 + 0.65 * Math.abs(Math.sin(i * 1.7))) * h * g * (0.92 + Math.sin(t * 3 + i) * 0.08);
-    d += ` Q${px - w / n / 2} ${h - peak * 0.2} ${px} ${h - peak}`;
-  }
-  d += ` L${w} ${h} Z`;
-  return (
-    <svg width={w} height={h * 2} style={{ position: "absolute", left: x - w / 2, top: y - h, overflow: "visible" }}>
-      <defs>
-        <linearGradient id={`cr${at}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#ffffff" />
-          <stop offset="1" stopColor={color} />
-        </linearGradient>
-      </defs>
-      <ellipse cx={w / 2} cy={h} rx={w * 0.55 * g} ry={h * 0.32} fill={color} opacity="0.95" />
-      <path d={d} fill={`url(#cr${at})`} />
-      {Array.from({ length: 9 }, (_, i) => {
-        const r = (q: string) => random(`crd${at}${i}${q}`);
-        const px = r("x") * w, life = Math.min(1, Math.max(0, (t - at) * (1.2 + r("v")) - r("d") * 0.3));
-        const py = h - h * 1.6 * Math.sin(Math.min(1, life) * Math.PI) - 10;
-        return life > 0 && life < 1 ? <circle key={i} cx={px} cy={py} r={4 + r("s") * 9} fill="#fff" /> : null;
-      })}
-      <path d={d} fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="3" />
-    </svg>
-  );
-};
+export const MILK: LiquidColors = { body: "#fbf6ec", shade: "#c9b28a", shine: "#ffffff" };
+export const FOAM: LiquidColors = { body: "#f3e2c6", shade: "#7a4a22", shine: "#fffaf0" };
+export const CARAMEL: LiquidColors = { body: "#c9832f", shade: "#5a2a0c", shine: "#ffd89a" };
+export const GOLDEN: LiquidColors = { body: "#e9b44c", shade: "#5a3208", shine: "#fff1c4" };
 
-/** Nuage de mousse : bulles crémeuses qui envahissent l'écran puis s'ouvrent (transition). */
-export const FoamCover: React.FC<{ at: number; dur?: number }> = ({ at, dur = 0.8 }) => {
+/* ============================================================================
+ * Ruban liquide qui ondule derrière le produit (lait ou caramel).
+ * Corps + ombre + reflet spéculaire ; il se dessine à l'apparition.
+ * ========================================================================== */
+export const LiquidRibbon: React.FC<{
+  pts: [number, number][];
+  width: number;
+  colors: LiquidColors;
+  drawAt: number;
+  sway?: number;
+}> = ({ pts, width, colors, drawAt, sway = 24 }) => {
   const frame = useCurrentFrame();
   const { W, H } = useLayout();
-  const inK = tw(frame, at, at + dur * 0.6, 0, 1, EASE.out);
-  const outK = tw(frame, at + dur * 0.6, at + dur, 0, 1, EASE.in);
-  if (inK <= 0 || outK >= 1) return null;
-  return (
-    <AbsoluteFill style={{ pointerEvents: "none", zIndex: 40 }}>
-      {Array.from({ length: 70 }, (_, i) => {
-        const r = (q: string) => random(`foam${i}${q}`);
-        const cx = r("x") * W, cy = r("y") * H;
-        const base = (Math.max(W, H) / 7) * (0.6 + r("s") * 0.9);
-        const s = base * Math.min(1, inK * (1.2 + r("d"))) * (1 - outK * (0.6 + r("o") * 0.6));
-        const drift = outK * (r("v") - 0.5) * 300;
-        if (s <= 1) return null;
-        return (
-          <div
-            key={i}
-            style={{
-              position: "absolute",
-              left: cx - s + drift,
-              top: cy - s - outK * 200,
-              width: s * 2,
-              height: s * 2,
-              borderRadius: "50%",
-              background: "radial-gradient(circle at 35% 30%, #ffffff 0%, #fbf3e4 45%, #e9d8bb 100%)",
-              boxShadow: "inset -10px -14px 30px rgba(160,120,70,0.18)",
-            }}
-          />
-        );
-      })}
-    </AbsoluteFill>
-  );
-};
-
-/** Explosion contrôlée de poudre de cacao (particules + nuage), centrée en (cx, cy). */
-export const CocoaBurst: React.FC<{ at: number; cx: number; cy: number }> = ({ at, cx, cy }) => {
-  const frame = useCurrentFrame();
-  const t = frame / 60 - at;
-  if (t < 0 || t > 2.6) return null;
-  const cloud = Math.min(1, t / 0.4) * Math.max(0, 1 - (t - 0.4) / 2.0);
-  return (
-    <AbsoluteFill style={{ pointerEvents: "none", zIndex: 30 }}>
-      <div style={{ position: "absolute", left: cx - 700, top: cy - 700, width: 1400, height: 1400, borderRadius: "50%", background: "radial-gradient(circle, rgba(110,55,25,0.75) 0%, rgba(110,55,25,0) 65%)", transform: `scale(${0.3 + Math.min(1.6, t * 1.6)})`, opacity: cloud, filter: "blur(20px)" }} />
-      {Array.from({ length: 160 }, (_, i) => {
-        const r = (q: string) => random(`cocoa${i}${q}`);
-        const a = r("a") * Math.PI * 2;
-        const v = 500 + r("v") * 1500;
-        const dist = (v / 3.2) * (1 - Math.exp(-3.2 * t)); // freinage de l'air
-        const x = cx + Math.cos(a) * dist, y = cy + Math.sin(a) * dist + 80 * t * t;
-        const s = 3 + r("s") * 9;
-        const o = Math.max(0, 1 - t / (1.4 + r("l")));
-        return <div key={i} style={{ position: "absolute", left: x, top: y, width: s, height: s, borderRadius: "50%", background: r("c") > 0.5 ? "#6b3418" : "#8a4a22", opacity: o, filter: `blur(${r("b") * 2}px)` }} />;
-      })}
-    </AbsoluteFill>
-  );
-};
-
-/** Tourbillon de caramel et de lait derrière le produit (rubans en spirale). */
-export const CaramelSwirl: React.FC<{ cx: number; cy: number; r: number; opacity?: number }> = ({ cx, cy, r, opacity = 1 }) => {
-  const frame = useCurrentFrame();
   const t = frame / 60;
-  const ribbon = (phase: number, turns: number) => {
-    const pts: string[] = [];
-    for (let i = 0; i <= 160; i++) {
-      const k = i / 160, a = phase + k * turns * Math.PI * 2 + t * 0.6;
-      const rr = r * (0.35 + k * 0.75);
-      pts.push(`${cx + Math.cos(a) * rr},${cy + Math.sin(a) * rr * 0.55}`);
+  const draw = tw(frame, drawAt, drawAt + 1.1, 0, 1, EASE.out);
+  if (draw <= 0) return null;
+  // courbe de Catmull-Rom échantillonnée
+  const P = pts.map(([x, y], i) => [x, y + Math.sin(t * 1.1 + i * 1.3) * sway] as [number, number]);
+  const out: string[] = [];
+  for (let i = 0; i < P.length - 1; i++) {
+    const p0 = P[Math.max(0, i - 1)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(P.length - 1, i + 2)];
+    for (let s = 0; s < 1; s += 0.05) {
+      const s2 = s * s, s3 = s2 * s;
+      const x = 0.5 * (2 * p1[0] + (-p0[0] + p2[0]) * s + (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * s2 + (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * s3);
+      const y = 0.5 * (2 * p1[1] + (-p0[1] + p2[1]) * s + (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * s2 + (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * s3);
+      out.push(`${x},${y}`);
     }
-    return pts.join(" ");
-  };
+  }
+  out.push(P[P.length - 1].join(","));
+  const len = 6000;
+  const dash = { strokeDasharray: len, strokeDashoffset: len * (1 - draw) };
   return (
-    <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, opacity, overflow: "visible" }}>
-      <defs>
-        <linearGradient id="caramel" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#f6c27a" />
-          <stop offset="0.5" stopColor="#c47a2c" />
-          <stop offset="1" stopColor="#7a3f14" />
-        </linearGradient>
-      </defs>
-      <polyline points={ribbon(0, 1.1)} fill="none" stroke="url(#caramel)" strokeWidth={r * 0.16} strokeLinecap="round" opacity="0.9" />
-      <polyline points={ribbon(Math.PI, 1.1)} fill="none" stroke="#fff6e6" strokeWidth={r * 0.11} strokeLinecap="round" opacity="0.9" />
-      <polyline points={ribbon(0, 1.1)} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth={r * 0.025} strokeLinecap="round" />
+    <svg width={W} height={H} style={{ position: "absolute", inset: 0, overflow: "visible", pointerEvents: "none" }}>
+      <polyline points={out.join(" ")} fill="none" stroke={colors.shade} strokeWidth={width * 1.1} strokeLinecap="round" strokeLinejoin="round" opacity={0.45} transform={`translate(0 ${width * 0.18})`} style={{ filter: "blur(16px)", ...dash }} />
+      <polyline points={out.join(" ")} fill="none" stroke={colors.body} strokeWidth={width} strokeLinecap="round" strokeLinejoin="round" style={dash} />
+      <polyline points={out.join(" ")} fill="none" stroke={colors.shade} strokeWidth={width * 0.35} strokeLinecap="round" strokeLinejoin="round" opacity={0.22} transform={`translate(0 ${width * 0.3})`} style={{ filter: "blur(6px)", ...dash }} />
+      <polyline points={out.join(" ")} fill="none" stroke={colors.shine} strokeWidth={width * 0.14} strokeLinecap="round" strokeLinejoin="round" transform={`translate(0 ${-width * 0.26})`} style={{ filter: "blur(2px)", ...dash }} />
     </svg>
   );
 };
 
-/** Ouverture circulaire « horloge » bordée d'un ruban caramel et lait (transition). */
-export const ClockWipe: React.FC<{ children: React.ReactNode; dur?: number }> = ({ children, dur = 0.85 }) => {
+/* ============================================================================
+ * Poudre de cacao qui tombe lentement dans le faisceau de lumière,
+ * avec une bouffée initiale (explosion contrôlée) au centre.
+ * ========================================================================== */
+export const CocoaDust: React.FC<{ burstAt: number; cx: number; cy: number }> = ({ burstAt, cx, cy }) => {
   const frame = useCurrentFrame();
   const { W, H } = useLayout();
-  const k = tw(frame, 0, dur, 0, 1, EASE.inOut);
-  if (k >= 1) return <AbsoluteFill>{children}</AbsoluteFill>;
-  const cx = W / 2, cy = H / 2, R = Math.hypot(W, H);
-  const a1 = -Math.PI / 2 + k * Math.PI * 2;
-  const pts = [`${cx}px ${cy}px`];
-  for (let i = 0; i <= 40; i++) {
-    const a = -Math.PI / 2 + (i / 40) * (a1 + Math.PI / 2);
-    pts.push(`${cx + Math.cos(a) * R}px ${cy + Math.sin(a) * R}px`);
-  }
+  const t = frame / 60;
+  const bt = t - burstAt;
   return (
-    <AbsoluteFill>
-      <AbsoluteFill style={{ clipPath: `polygon(${pts.join(",")})` }}>{children}</AbsoluteFill>
-      <div style={{ position: "absolute", left: cx, top: cy - 30, width: R, height: 60, transformOrigin: "0 50%", transform: `rotate(${(a1 * 180) / Math.PI}deg)`, background: "linear-gradient(180deg, #fff6e6 0%, #fff6e6 40%, #c47a2c 41%, #7a3f14 100%)", boxShadow: "0 0 40px rgba(120,60,20,0.5)", borderRadius: 30 }} />
+    <AbsoluteFill style={{ pointerEvents: "none" }}>
+      {bt > 0 && bt < 2.2 && (
+        <div style={{ position: "absolute", left: cx - 600, top: cy - 600, width: 1200, height: 1200, borderRadius: "50%", background: "radial-gradient(circle, rgba(105,52,22,0.6) 0%, rgba(105,52,22,0) 62%)", transform: `scale(${0.2 + Math.min(1.5, bt * 1.8)})`, opacity: Math.min(1, bt * 4) * Math.max(0, 1 - bt / 2.2), filter: "blur(24px)" }} />
+      )}
+      {Array.from({ length: 130 }, (_, i) => {
+        const r = (q: string) => random(`cd${i}${q}`);
+        let x: number, y: number, o: number;
+        if (i < 70) {
+          if (bt < 0) return null;
+          const a = r("a") * Math.PI * 2, v = 400 + r("v") * 1300;
+          const d = (v / 3) * (1 - Math.exp(-3 * bt));
+          x = cx + Math.cos(a) * d; y = cy + Math.sin(a) * d + 60 * bt * bt; o = Math.max(0, 1 - bt / (1.2 + r("l")));
+        } else {
+          x = r("x") * W + Math.sin(t * 0.7 + r("p") * 6) * 20;
+          y = ((r("y") * H + t * (20 + r("v") * 30)) % H);
+          o = 0.35 + r("o") * 0.4;
+        }
+        const s = 2 + r("s") * (i < 70 ? 7 : 4);
+        return <div key={i} style={{ position: "absolute", left: x, top: y, width: s, height: s, borderRadius: "50%", background: r("c") > 0.5 ? "#6b3418" : "#9a5a2c", opacity: o, filter: i >= 70 && r("b") > 0.6 ? "blur(2px)" : undefined }} />;
+      })}
     </AbsoluteFill>
   );
 };

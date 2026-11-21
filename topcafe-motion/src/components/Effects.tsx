@@ -123,7 +123,9 @@ export const Sachet: React.FC<{ src: string; ratio: number; height: number; shin
     <div style={{ position: "relative", width, height }}>
       <div style={{ position: "absolute", left: width * 0.08, right: width * 0.08, bottom: -height * 0.05, height: height * 0.1, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 70%)", filter: "blur(10px)", opacity: shadow }} />
       {reflection > 0 && (
-        <Img src={url} style={{ position: "absolute", top: height - 2, left: 0, width, height, transform: "scaleY(-1)", opacity: reflection, WebkitMaskImage: "linear-gradient(0deg, transparent 70%, #000 100%)", maskImage: "linear-gradient(0deg, transparent 70%, #000 100%)" }} />
+        <div style={{ position: "absolute", top: height - 2, left: 0, width, height, opacity: reflection, WebkitMaskImage: "linear-gradient(180deg, #000 0%, transparent 32%)", maskImage: "linear-gradient(180deg, #000 0%, transparent 32%)" }}>
+          <Img src={url} style={{ width, height, transform: "scaleY(-1)" }} />
+        </div>
       )}
       <Img src={url} style={{ position: "absolute", inset: 0, width, height, filter: `drop-shadow(0 ${height * 0.04}px ${height * 0.05}px rgba(0,0,0,0.5))` }} />
       <div style={{ position: "absolute", inset: 0, WebkitMaskImage: `url(${url})`, WebkitMaskSize: "100% 100%", maskImage: `url(${url})`, maskSize: "100% 100%", overflow: "hidden", mixBlendMode: "screen" }}>

@@ -12,14 +12,17 @@ Les rendus sont faits dans un conteneur cloud : 4 cœurs, sans GPU ni Blender. D
 **Remotion** (React + SVG + CSS, rendu par Chromium), d'effets procéduraux en SVG (liquides,
 particules, vapeur, lumière) et de **Python** (numpy/scipy) pour synthétiser la musique et les bruitages.
 
-## Storyboard
+## Storyboard (version 2)
 | Temps | Plan | Ce qui se passe |
 |---|---|---|
-| 0–4 s | Ouverture | Univers sombre, lumière volumétrique, grains de café en suspension (dolly avant), vapeur, particules dorées. Un grain traverse l'objectif et la caméra le suit. Éclat doré, puis **TOPCAFÉ** en capitales dorées. |
-| 4–10 s | 3 IN 1 | Une vague de lait traverse l'écran, la caméra plonge dedans. Le sachet bleu monte au centre (dolly), avec une couronne de lait, de la vapeur et des grains en parallaxe. Le sachet glisse à gauche, puis « TOPCAFÉ 3 IN 1 » et **CRÉMEUX ET DÉLICIEUX**. |
-| 10–17 s | Cappuccino | La vague devient un nuage de mousse, puis une explosion de poudre de cacao. Le sachet orange arrive avec un mouvement puissant (sortie de flou), en travelling. « TOPCAFÉ CAPPUCCINO » puis **CRÉMEUX ET DÉLICIEUX**. |
-| 17–24 s | Café Latte | Ouverture circulaire bordée d'un ruban caramel et lait. Le sachet arrive sur une trajectoire circulaire, avec un tourbillon caramel derrière lui et une mise au point qui glisse du fond vers le produit. « TOPCAFÉ CAFÉ LATTE » puis **CRÉMEUX ET DÉLICIEUX**. |
-| 24–30 s | Packshot | Iris doré. Les trois sachets sur un sol réfléchissant, avec lumière volumétrique, vagues de lait, grains et vapeur. La caméra tourne autour (parallaxe) puis se stabilise. **TOPCAFÉ** puis le slogan final, avec un impact sonore. |
+| 0–4 s | Ouverture | Noir, puis une lumière chaude monte sur un sol sombre et brillant où reposent trois grains. Lumière volumétrique, particules, dolly avant. Un grain traverse l'objectif et la caméra le suit. Éclat doré, puis **TOPCAFÉ** en capitales dorées, tenu 2 secondes. |
+| 4–10 s | 3 IN 1 | Une vague de lait lisse traverse l'écran et révèle directement l'univers bleu. Le sachet se pose sur le sol brillant (reflet, ombre de contact), un ruban de lait ondule derrière lui, avec de la vapeur et des grains. La caméra glisse, puis « TOPCAFÉ 3 IN 1 » et **CRÉMEUX ET DÉLICIEUX** apparaissent. |
+| 10–16 s | Cappuccino | Un front de mousse monte, puis une bouffée de cacao éclate. Le sachet orange arrive avec force (sortie de flou), pendant que la poudre de cacao tombe dans la lumière. Nom, puis slogan. |
+| 16–23 s | Café Latte | Un anneau de caramel s'ouvre depuis le centre. Le sachet arrive en pivotant, avec des rubans de caramel et de lait derrière lui. Nom, puis slogan. |
+| 23–30 s | Packshot | Une vague dorée en diagonale. Les trois sachets sur un sol réfléchissant, avec rubans caramel et lait, rayons dorés et grains. La caméra tourne autour puis se stabilise. **TOPCAFÉ** puis le slogan final, tenu près de 5 secondes. |
+
+Les transitions sont des fronts liquides lisses (`LiquidWipe`) qui révèlent directement la scène
+suivante : aucun écran vide entre deux scènes.
 
 ## Respect des produits
 - Les trois sachets sont les **images fournies**, seulement détourées (`scripts/detourer.py`) :
@@ -39,8 +42,8 @@ topcafe-motion/
 ├── src/theme.ts            minutage, univers, slogan, mise en page 16:9 / 9:16
 ├── src/TopcafeCremeux.tsx  timeline principale et transitions
 ├── src/scenes/Scenes.tsx   Ouverture, scène produit paramétrée (×3), Packshot
-├── src/components/         Effects (lumière, grains, vapeur, sachet), Liquids (vague, couronne,
-│                           mousse, cacao, caramel, ouverture circulaire), Typo (TOPCAFÉ, slogan)
+├── src/components/         Effects (lumière, grains, vapeur, sachet + reflet), Liquids (transitions
+│                           liquides, rubans lait/caramel, poudre de cacao), Typo (TOPCAFÉ, slogan)
 ├── previews/               images de contrôle
 └── renders/                vidéos finales
 ```

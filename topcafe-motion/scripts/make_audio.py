@@ -58,7 +58,7 @@ t = tt(1.6); add(mus, bp(rng.normal(size=len(t)), 300, 8000) * (t / 1.6) ** 3, 1
 # groove 4 s → 24 s : Dm9 – Bbmaj7 – Gm9 – A7sus
 prog = [(38, [57, 60, 64, 65]), (34, [57, 62, 65, 69]), (31, [58, 62, 65, 69]), (33, [55, 60, 62, 67])]
 bar = 4 * B; m = 0; t0 = 4.0
-while t0 < 24.0:
+while t0 < 22.7:
     root, notes = prog[m % 4]
     add(mus, pad(notes, bar + 0.3, 1900), t0, 0.12)
     for st in range(4):
@@ -72,10 +72,13 @@ while t0 < 24.0:
         add(mus, rhodes(notes[k % 4] + 12), t0 + st * B, 0.08, 0.3 * (-1) ** k)
     t0 += bar; m += 1
 # montée vers le packshot puis accord final
-t = tt(1.0); add(mus, bp(rng.normal(size=len(t)), 400, 9000) * (t / 1.0) ** 3, 23.0, 0.16)
-add(mus, boom(3.0) * 0.8, 24.0, 0.5)
-add(mus, pad([50, 57, 62, 65, 69, 72], 6.0, 2400), 24.0, 0.2)
-for k, n in enumerate([74, 77, 81, 84]): add(mus, rhodes(n, 2.5), 24.3 + k * 0.2, 0.08)
+t = tt(1.0); add(mus, bp(rng.normal(size=len(t)), 400, 9000) * (t / 1.0) ** 3, 21.7, 0.16)
+add(mus, boom(3.0) * 0.8, 22.7, 0.5)
+add(mus, pad([50, 57, 62, 65, 69, 72], 7.3, 2400), 22.7, 0.2)
+for k, n in enumerate([74, 77, 81, 84]): add(mus, rhodes(n, 2.5), 25.2 + k * 0.2, 0.08)
+t0 = 23.0
+while t0 < 28.8:  # pulsation douce sous le packshot
+    add(mus, kick(), t0, 0.32); add(mus, hat(True), t0 + B / 2, 0.035, 0.3); t0 += 2 * B
 
 # ------------------------------------------------------------------ bruitages
 sfx = np.zeros((N, 2))
@@ -111,20 +114,20 @@ def puff(d=0.9):
 def bean_tick():
     t = tt(0.05); return bp(rng.normal(size=len(t)), 1800, 5000) * np.exp(-t * 110)
 
-for k in range(6): add(sfx, bean_tick(), 0.6 + k * 0.33, 0.06, rng.uniform(-0.6, 0.6))   # grains qui flottent
-add(sfx, whoosh(0.7), 2.45, 0.32, 0.4)                                                  # le grain passe devant l'objectif
-add(sfx, impact(), 3.05, 0.35); add(sfx, shimmer(), 3.1, 0.09)                          # éclat doré, TOPCAFÉ
-add(sfx, liquid(1.4), 3.6, 0.3); add(sfx, whoosh(0.9), 3.6, 0.15)                       # vague de lait
-add(sfx, impact(1.0), 4.65, 0.2)                                                         # sachet 3 IN 1
-add(sfx, liquid(0.8), 4.8, 0.14, -0.3)                                                   # éclaboussure
-add(sfx, fizz(), 9.8, 0.16); add(sfx, whoosh(0.8), 9.8, 0.18)                            # mousse
-add(sfx, puff(), 10.45, 0.4); add(sfx, impact(1.0), 10.9, 0.28)                          # cacao + sachet Cappuccino
-add(sfx, liquid(1.2), 16.9, 0.26); add(sfx, whoosh(0.9, False), 16.9, 0.16)              # tourbillon caramel
-add(sfx, impact(1.0), 17.65, 0.22)                                                        # sachet Café Latte
-add(sfx, whoosh(0.9), 23.7, 0.26); add(sfx, shimmer(), 24.2, 0.08)                       # vers le packshot
-for t0 in (24.35, 24.5, 24.65): add(sfx, impact(0.6), t0, 0.1)                            # arrivée des 3 sachets
-for t0 in (7.4, 13.6, 20.4): add(sfx, impact(1.0), t0, 0.22); add(sfx, shimmer(1.0), t0 + 0.05, 0.06)  # slogans
-add(sfx, impact(2.0), 27.1, 0.42); add(sfx, shimmer(1.6), 27.15, 0.12)                   # slogan final
+for k in range(5): add(sfx, bean_tick(), 0.5 + k * 0.1, 0.05, rng.uniform(-0.6, 0.6))   # grains posés, lumière qui monte
+add(sfx, whoosh(0.8), 0.95, 0.34, -0.5)                                                   # le grain traverse l'objectif
+add(sfx, impact(), 1.65, 0.36); add(sfx, shimmer(), 1.75, 0.09)                            # éclat doré, TOPCAFÉ
+add(sfx, liquid(1.0), 3.65, 0.32); add(sfx, whoosh(0.8), 3.65, 0.14)                       # vague de lait
+add(sfx, impact(1.0), 4.15, 0.24)                                                           # sachet 3 IN 1
+add(sfx, fizz(), 9.65, 0.16); add(sfx, whoosh(0.8, False), 9.65, 0.16)                      # front de mousse
+add(sfx, puff(), 9.85, 0.4); add(sfx, impact(1.0), 10.25, 0.3)                              # cacao + sachet Cappuccino
+add(sfx, liquid(1.0), 16.15, 0.28); add(sfx, whoosh(0.8), 16.15, 0.14)                      # anneau caramel
+add(sfx, impact(1.0), 16.75, 0.22)                                                          # sachet Café Latte
+add(sfx, whoosh(0.9), 22.65, 0.26); add(sfx, liquid(0.9), 22.7, 0.16)                       # vague dorée vers le packshot
+for t0 in (23.25, 23.4, 23.55): add(sfx, impact(0.6), t0, 0.12)                             # arrivée des 3 sachets
+add(sfx, shimmer(), 24.4, 0.08)                                                             # TOPCAFÉ
+for t0 in (6.7, 12.7, 19.2): add(sfx, impact(1.0), t0, 0.22); add(sfx, shimmer(1.0), t0 + 0.05, 0.06)  # slogans
+add(sfx, impact(2.0), 25.2, 0.42); add(sfx, shimmer(1.6), 25.25, 0.12)                     # slogan final
 
 ir_t = tt(1.6); ir = rng.normal(size=(len(ir_t), 2)) * np.exp(-ir_t * 4)[:, None]; ir /= np.sqrt((ir ** 2).sum(0))
 mix = mus + sfx
