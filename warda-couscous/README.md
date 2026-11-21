@@ -15,6 +15,9 @@ Rendus : `renders/warda-couscous-16x9.mp4` et `renders/warda-couscous-9x16.mp4` 
 ## Respect du produit
 - Le sachet, le médaillon Warda et le plat sont **découpés du visuel fourni** (`scripts/detourer.py`),
   sans retouche ni déformation. Le visuel d'origine est gardé dans `public/media/original-warda.png`.
+- Le plat de couscous vient de la seconde photo fournie (`public/media/original-plat.png`). Il touche le haut et les côtés
+  de cette photo : il est détouré par une courbe ajustée au rebord mesuré, légèrement à l'intérieur du rebord blanc
+  (`scripts/plat_detoure.py`), pour un contour continu, sans bord coupé.
 - Sur la photo, le bol de semoule cache le coin bas-gauche du sachet. Ce coin n'est pas inventé :
   la mise en scène place un tas de semoule au premier plan à cet endroit.
 - Tous les textes viennent du visuel : titre, quatre avantages, slogan et poids.
