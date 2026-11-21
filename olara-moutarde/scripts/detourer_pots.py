@@ -41,6 +41,9 @@ for name, (x0, x1, yt, yb, bl, br) in JARS.items():
     lab2, n2 = ndimage.label(bgl)
     touch = set(np.unique(lab2[ring & bgl])) - {0}
     cut = np.isin(lab2, list(touch))
+    # uniquement dans la zone du col et de l'épaule (haut du pot), jamais sur l'étiquette
+    neck = np.zeros_like(cut); neck[: yt + int((yb - yt) * 0.22), :] = True
+    cut &= neck
     keep = inside & ~ndimage.binary_dilation(cut, iterations=1)
     mk = Image.fromarray((keep * 255).astype("uint8")).filter(ImageFilter.GaussianBlur(0.8))
     out = SRC.copy(); out.putalpha(mk); box = out.getbbox(); out = out.crop(box)
